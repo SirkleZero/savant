@@ -9,6 +9,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.PlatformUI;
+using Savant.Interface;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Savant
 {
@@ -78,21 +81,37 @@ namespace Savant
         private void MenuItemCallback(object sender, EventArgs e)
         {
             // Show a Message Box to prove we were here
-            IVsUIShell uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
-            Guid clsid = Guid.Empty;
-            int result;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
-                       0,
-                       ref clsid,
-                       "Savant",
-                       string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.ToString()),
-                       string.Empty,
-                       0,
-                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-                       OLEMSGICON.OLEMSGICON_INFO,
-                       0,        // false
-                       out result));
+            //IVsUIShell uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
+            //Guid clsid = Guid.Empty;
+            //int result;
+            //Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
+            //           0,
+            //           ref clsid,
+            //           "Savant",
+            //           string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.ToString()),
+            //           string.Empty,
+            //           0,
+            //           OLEMSGBUTTON.OLEMSGBUTTON_OK,
+            //           OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
+            //           OLEMSGICON.OLEMSGICON_INFO,
+            //           0,        // false
+            //           out result));
+
+            var window = SavantPackage.GetDatabaseConnectionWindow();
+            try
+            {
+                window.ShowModal();
+            }
+            catch (TargetInvocationException exception)
+            {
+                Debug.WriteLine(exception.ToString());
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static DialogWindow GetDatabaseConnectionWindow()
+        {
+            return new DatabaseConnectionWindow();
         }
 
     }
