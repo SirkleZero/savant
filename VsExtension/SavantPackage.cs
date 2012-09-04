@@ -1,17 +1,17 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.InteropServices;
-using System.ComponentModel.Design;
-using Microsoft.Win32;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.PlatformUI;
-using Savant.Interface;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.Win32;
+using Savant.Interface;
 
 namespace Savant
 {
@@ -48,9 +48,7 @@ namespace Savant
             Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
         }
 
-        /////////////////////////////////////////////////////////////////////////////
-        // Overridden Package Implementation
-        #region Package Members
+        #region Overridden Package Implementation
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -63,11 +61,11 @@ namespace Savant
 
             // Add our command handlers for menu (commands must exist in the .vsct file)
             OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if ( null != mcs )
+            if (mcs != null)
             {
                 // Create the command for the menu item.
                 CommandID menuCommandID = new CommandID(GuidList.guidSavantPackageCmdSet, (int)PkgCmdIDList.generateDataAdaptersCommand);
-                MenuCommand menuItem = new MenuCommand(MenuItemCallback, menuCommandID );
+                MenuCommand menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID );
                 mcs.AddCommand( menuItem );
             }
         }
