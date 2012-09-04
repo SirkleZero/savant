@@ -71,6 +71,7 @@ namespace Savant
                 mcs.AddCommand( menuItem );
             }
         }
+
         #endregion
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace Savant
             //           0,        // false
             //           out result));
 
-            var window = SavantPackage.GetDatabaseConnectionWindow();
+            var window = SavantPackage.GetAdapterGeneratorWindow();
             try
             {
                 window.ShowModal();
@@ -112,6 +113,12 @@ namespace Savant
         private static DialogWindow GetDatabaseConnectionWindow()
         {
             return new DatabaseConnectionWindow();
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static DialogWindow GetAdapterGeneratorWindow()
+        {
+            return new AdapterGeneratorWindow();
         }
 
     }

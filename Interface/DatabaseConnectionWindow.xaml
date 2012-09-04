@@ -14,9 +14,7 @@
     Width="640"
     Height="480"
     MinWidth="640"
-    MinHeight="480" Cursor="Hand"
+    MinHeight="480"
     >
-    <Grid>
-        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Hello World!"></TextBlock>
-    </Grid>
+    <Grid/>
 </ui:DialogWindow>

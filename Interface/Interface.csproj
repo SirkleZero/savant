@@ -76,6 +76,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdapterGeneratorWindow.xaml.cs">
+      <DependentUpon>AdapterGeneratorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DatabaseConnectionWindow.xaml.cs">
       <DependentUpon>DatabaseConnectionWindow.xaml</DependentUpon>
     </Compile>
@@ -104,6 +107,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="AdapterGeneratorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="DatabaseConnectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -1,0 +1,66 @@
+﻿<ui:DialogWindow 
+    x:Class="Savant.Interface.AdapterGeneratorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.11.0"
+    xmlns:org="clr-namespace:Savant.Interface"
+    Title="Generate Data Adapters"
+    WindowStartupLocation="CenterOwner"
+    HasHelpButton="True"
+    HasMaximizeButton="False"
+    HasMinimizeButton="False"
+    ResizeMode="CanResizeWithGrip"
+    ShowInTaskbar="False"
+    SnapsToDevicePixels="True"
+    Width="640"
+    Height="480"
+    MinWidth="640"
+    MinHeight="480"
+    >
+
+    <Window.Resources>
+
+        <HierarchicalDataTemplate DataType="{x:Type org:Project}" ItemsSource="{Binding Path=Items}">
+            <Border BorderBrush="Green" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Project: " />
+                    <TextBlock Text="{Binding Path=Name}" />
+                </StackPanel>
+            </Border>
+        </HierarchicalDataTemplate>
+
+        <HierarchicalDataTemplate DataType="{x:Type org:FolderProjectItem}" ItemsSource="{Binding Path=Items}">
+            <Border BorderBrush="#FFD4D462" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Folder: " />
+                    <TextBlock Text="{Binding Path=Name}" />
+                </StackPanel>
+            </Border>
+        </HierarchicalDataTemplate>
+
+        <HierarchicalDataTemplate DataType="{x:Type org:ClassProjectItem}" ItemsSource="{Binding Path=Items}">
+            <Border BorderBrush="#FF1FD3F0" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Class: " />
+                    <TextBlock Text="{Binding Path=Name}" />
+                </StackPanel>
+            </Border>
+        </HierarchicalDataTemplate>
+
+    </Window.Resources>
+
+    <Grid>
+        <ListBox HorizontalAlignment="Left" Height="403" Margin="10,37,0,0" VerticalAlignment="Top" Width="269">
+            <ListBoxItem Content="InsertEvent"/>
+            <ListBoxItem Content="InsertUser"/>
+            <ListBoxItem Content="UpdateEvent"/>
+            <ListBoxItem Content="UpdateUser"/>
+        </ListBox>
+        <ComboBox HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="269">
+            <ComboBoxItem Content="EventRegistration"/>
+            <ComboBoxItem Content="MembershipSystem"/>
+            <ComboBoxItem Content="OrderSystem"/>
+        </ComboBox>
+        <TreeView Name="treeView"/>
+    </Grid>
+</ui:DialogWindow>
