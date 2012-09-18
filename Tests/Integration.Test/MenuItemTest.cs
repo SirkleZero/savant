@@ -45,7 +45,7 @@ namespace Integration.Test
                 CommandID menuItemCmd = new CommandID(Savant.GuidList.guidSavantPackageCmdSet, (int)Savant.PkgCmdIDList.generateDataAdaptersCommand);
 
                 // Create the DialogBoxListener Thread.
-                string expectedDialogBoxText = string.Format(CultureInfo.CurrentCulture, "{0}\n\nInside {1}.MenuItemCallback()", "Savant", "ZeitgeistMediaLLC.SavantPackage.SavantPackage");
+                string expectedDialogBoxText = string.Format(CultureInfo.CurrentCulture, "{0}\n\nInside {1}.MenuItemCallback()", "Savant", "Savant.SavantPackage");
                 DialogBoxPurger purger = new DialogBoxPurger(NativeMethods.IDOK, expectedDialogBoxText);
 
                 try

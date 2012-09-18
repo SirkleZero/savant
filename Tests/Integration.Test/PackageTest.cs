@@ -7,6 +7,8 @@ using Microsoft.VSSDK.Tools.VsIdeTesting;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using EnvDTE;
+using EnvDTE80;
+using Microsoft.VsSDK.IntegrationTestLibrary;
 
 namespace Integration.Test
 {
@@ -42,7 +44,6 @@ namespace Integration.Test
         {
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
-
                 //Get the Shell Service
                 IVsShell shellService = VsIdeTestHostContext.ServiceProvider.GetService(typeof(SVsShell)) as IVsShell;
                 Assert.IsNotNull(shellService);
