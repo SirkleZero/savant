@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VsExtension", "VsExtension\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualStudio.Interop", "VisualStudio.Interop\VisualStudio.Interop.csproj", "{380FC1CB-68CF-4057-8DF3-F8260D3EA3B5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTestLibrary", "IntegrationTestLibrary\IntegrationTestLibrary.csproj", "{648DA260-893B-485B-9E5A-5454E391FAC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{380FC1CB-68CF-4057-8DF3-F8260D3EA3B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{380FC1CB-68CF-4057-8DF3-F8260D3EA3B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{380FC1CB-68CF-4057-8DF3-F8260D3EA3B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{648DA260-893B-485B-9E5A-5454E391FAC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{648DA260-893B-485B-9E5A-5454E391FAC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{648DA260-893B-485B-9E5A-5454E391FAC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{648DA260-893B-485B-9E5A-5454E391FAC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,5 +50,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E7C93F34-B16A-4165-A4C6-5A9720307CF4} = {EB638AC2-ABCD-4E9A-8D1D-41123407D7C8}
 		{94CFCBEB-DC90-4CD4-A913-BE41A1B03E99} = {EB638AC2-ABCD-4E9A-8D1D-41123407D7C8}
+		{648DA260-893B-485B-9E5A-5454E391FAC7} = {EB638AC2-ABCD-4E9A-8D1D-41123407D7C8}
 	EndGlobalSection
 EndGlobal

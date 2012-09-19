@@ -61,9 +61,6 @@
     <!---->
     <!---->
     <Compile Include="PackageTest.cs" />
-    <Compile Include="IntegrationTest Library\DialogboxPurger.cs" />
-    <Compile Include="IntegrationTest Library\NativeMethods.cs" />
-    <Compile Include="IntegrationTest Library\Utils.cs" />
     <Compile Include="SignOff-Tests\CPPProjectTests.cs" />
     <Compile Include="SignOff-Tests\CSharpProjectTests.cs" />
     <Compile Include="SignOff-Tests\SolutionTests.cs" />
@@ -73,6 +70,10 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\IntegrationTestLibrary\IntegrationTestLibrary.csproj">
+      <Project>{648da260-893b-485b-9e5a-5454e391fac7}</Project>
+      <Name>IntegrationTestLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\VsExtension\VsExtension.csproj">
       <Project>{565ff068-dd4a-4730-91dd-ad1c2328858a}</Project>
       <Name>VsExtension</Name>

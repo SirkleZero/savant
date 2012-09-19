@@ -21,57 +21,57 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
     /// <summary>
     /// Defines pinvoked utility methods and internal VS Constants
     /// </summary>
-    internal static class NativeMethods
+    public static class NativeMethods
     {
-        internal delegate bool CallBack(IntPtr hwnd, IntPtr lParam);
+        public delegate bool CallBack(IntPtr hwnd, IntPtr lParam);
 
         // Declare two overloaded SendMessage functions
         [DllImport("user32.dll")]
-        internal static extern UInt32 SendMessage(IntPtr hWnd, UInt32 Msg,
+        public static extern UInt32 SendMessage(IntPtr hWnd, UInt32 Msg,
             UInt32 wParam, IntPtr lParam);
 
         [DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        internal static extern bool PeekMessage([In, Out] ref Microsoft.VisualStudio.OLE.Interop.MSG msg, HandleRef hwnd, int msgMin, int msgMax, int remove);
+        public static extern bool PeekMessage([In, Out] ref Microsoft.VisualStudio.OLE.Interop.MSG msg, HandleRef hwnd, int msgMin, int msgMax, int remove);
 
         [DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        internal static extern bool TranslateMessage([In, Out] ref Microsoft.VisualStudio.OLE.Interop.MSG msg);
+        public static extern bool TranslateMessage([In, Out] ref Microsoft.VisualStudio.OLE.Interop.MSG msg);
 
         [DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        internal static extern int DispatchMessage([In] ref Microsoft.VisualStudio.OLE.Interop.MSG msg);
+        public static extern int DispatchMessage([In] ref Microsoft.VisualStudio.OLE.Interop.MSG msg);
 
         [DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        internal static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool attach);
+        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool attach);
 
         [DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         [DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        internal static extern uint GetCurrentThreadId();
+        public static extern uint GetCurrentThreadId();
 
         [DllImport("user32")]
-        internal static extern int EnumChildWindows(IntPtr hwnd, CallBack x, IntPtr y);
+        public static extern int EnumChildWindows(IntPtr hwnd, CallBack x, IntPtr y);
 
         [DllImport("user32")]
-        internal static extern bool IsWindowVisible(IntPtr hDlg);
+        public static extern bool IsWindowVisible(IntPtr hDlg);
 
         [DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        internal static extern IntPtr SetFocus(IntPtr hWnd);
+        public static extern IntPtr SetFocus(IntPtr hWnd);
 
         [DllImport("user32")]
-        internal static extern int GetClassName(IntPtr hWnd,
+        public static extern int GetClassName(IntPtr hWnd,
                                                StringBuilder className,
                                                int stringLength);
         [DllImport("user32")]
-        internal static extern int GetWindowText(IntPtr hWnd, StringBuilder className, int stringLength);
+        public static extern int GetWindowText(IntPtr hWnd, StringBuilder className, int stringLength);
 
 
         [DllImport("user32")]
-        internal static extern bool EndDialog(IntPtr hDlg, int result);
+        public static extern bool EndDialog(IntPtr hDlg, int result);
 
         [DllImport("Kernel32")]
-        internal static extern long GetLastError();
+        public static extern long GetLastError();
 
-        internal const int QS_KEY = 0x0001,
+        public const int QS_KEY = 0x0001,
                         QS_MOUSEMOVE = 0x0002,
                         QS_MOUSEBUTTON = 0x0004,
                         QS_POSTMESSAGE = 0x0008,
@@ -85,11 +85,11 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
                         QS_ALLEVENTS = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY,
                         QS_ALLINPUT = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY | QS_SENDMESSAGE;
 
-        internal const int Facility_Win32 = 7;
+        public const int Facility_Win32 = 7;
 
-        internal const int WM_CLOSE = 0x0010;
+        public const int WM_CLOSE = 0x0010;
 
-        internal const int
+        public const int
                        S_FALSE = 0x00000001,
                        S_OK = 0x00000000,
 
@@ -105,7 +105,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
                        IDTRYAGAIN = 10,
                        IDCONTINUE = 11;
 
-        internal static long HResultFromWin32(long error)
+        public static long HResultFromWin32(long error)
         {
             if (error <= 0)
             {

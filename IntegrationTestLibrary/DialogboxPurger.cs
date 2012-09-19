@@ -1,5 +1,4 @@
-﻿
-namespace Microsoft.VsSDK.IntegrationTestLibrary
+﻿namespace Microsoft.VsSDK.IntegrationTestLibrary
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +11,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
     /// <summary>
     /// This class is responsible to close dialog boxes that pop up during different VS Calls
     /// </summary>
-    internal class DialogBoxPurger : IDisposable
+    public class DialogBoxPurger : IDisposable
     {
         /// <summary>
         /// The default number of milliseconds to wait for the threads to signal to terminate.
@@ -76,7 +75,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
         /// <param name="buttonAction">The botton to "press" on the dialog box.</param>
         /// <param name="numberOfDialogsToWaitFor">The number of dialog boxes with the same message to wait for. This is the situation when the same action pops up two of the same dialog boxes</param>
         /// <param name="expectedDialogMesssage">The expected dialog box message to check for.</param>
-        internal DialogBoxPurger(int buttonAction, int numberOfDialogsToWaitFor, string expectedDialogMesssage)
+        public DialogBoxPurger(int buttonAction, int numberOfDialogsToWaitFor, string expectedDialogMesssage)
         {
             this.buttonAction = buttonAction;
             this.numberOfDialogsToWaitFor = numberOfDialogsToWaitFor;
@@ -88,7 +87,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
         /// </summary>
         /// <param name="buttonAction">The botton to "press" on the dialog box.</param>
         /// <param name="numberOfDialogsToWaitFor">The number of dialog boxes with the same message to wait for. This is the situation when the same action pops up two of the same dialog boxes</param>
-        internal DialogBoxPurger(int buttonAction, int numberOfDialogsToWaitFor)
+        public DialogBoxPurger(int buttonAction, int numberOfDialogsToWaitFor)
         {
             this.buttonAction = buttonAction;
             this.numberOfDialogsToWaitFor = numberOfDialogsToWaitFor;
@@ -99,7 +98,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
         /// </summary>
         /// <param name="buttonAction">The botton to "press" on the dialog box.</param>
         /// <param name="expectedDialogMesssage">The expected dialog box message to check for.</param>
-        internal DialogBoxPurger(int buttonAction, string expectedDialogMesssage)
+        public DialogBoxPurger(int buttonAction, string expectedDialogMesssage)
         {
             this.buttonAction = buttonAction;
             this.expectedDialogBoxText = expectedDialogMesssage;
@@ -109,7 +108,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
         /// Overloaded ctor.
         /// </summary>
         /// <param name="buttonAction">The botton to "press" on the dialog box.</param>
-        internal DialogBoxPurger(int buttonAction)
+        public DialogBoxPurger(int buttonAction)
         {
             this.buttonAction = buttonAction;
         }
@@ -132,7 +131,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
         /// <summary>
         /// Spawns a thread that will start listening to dialog boxes.
         /// </summary>
-        internal void Start()
+        public void Start()
         {
             // We ask for the uishell here since we cannot do that on the therad that we will spawn.
             IVsUIShell uiShell = Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell;
@@ -155,7 +154,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
         /// Waits for the dialog box close thread to terminate. If the thread does not signal back within millisecondsToWait that it is shutting down,
         /// then it will tell to the thread to do it.
         /// </summary>
-        internal bool WaitForDialogThreadToTerminate()
+        public bool WaitForDialogThreadToTerminate()
         {
             return this.WaitForDialogThreadToTerminate(DefaultMillisecondsToWait);
         }
@@ -166,7 +165,7 @@ namespace Microsoft.VsSDK.IntegrationTestLibrary
         /// </summary>
         /// <param name="millisecondsToWait">The number milliseconds to wait for until the dialog purger thread is signaled to terminate. This is just for safe precaution that we do not hang. </param>
         /// <returns>The result of the dialog boxes closing</returns>
-        internal bool WaitForDialogThreadToTerminate(int numberOfMillisecondsToWait)
+        public bool WaitForDialogThreadToTerminate(int numberOfMillisecondsToWait)
         {
             bool signaled = false;
 

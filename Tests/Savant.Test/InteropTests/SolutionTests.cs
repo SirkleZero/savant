@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using EnvDTE;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VsSDK.IntegrationTestLibrary;
 using Microsoft.VSSDK.Tools.VsIdeTesting;
 
 namespace Savant.Test.InteropTests
@@ -13,9 +14,14 @@ namespace Savant.Test.InteropTests
     [TestClass]
     public class SolutionTests
     {
-        private delegate void ThreadInvoker();
+        #region fields
 
-        private TestContext testContextInstance;
+        private delegate void ThreadInvoker();
+        private TestContext _testContext;
+
+        #endregion
+
+        #region properties
 
         /// <summary>
         ///Gets or sets the test context which provides
@@ -23,15 +29,41 @@ namespace Savant.Test.InteropTests
         ///</summary>
         public TestContext TestContext
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            get { return _testContext; }
+            set { _testContext = value; }
         }
+
+        #endregion
+
+        #region ctors
+
+        public SolutionTests() { }
+
+        #endregion
+
+        #region Additional test attributes
+
+        //
+        // You can use the following additional attributes as you write your tests:
+        //
+        // Use ClassInitialize to run code before running the first test in the class
+        // [ClassInitialize()]
+        // public static void MyClassInitialize(TestContext testContext) { }
+        //
+        // Use ClassCleanup to run code after all tests in a class have run
+        // [ClassCleanup()]
+        // public static void MyClassCleanup() { }
+        //
+        // Use TestInitialize to run code before running each test 
+        // [TestInitialize()]
+        // public void MyTestInitialize() { }
+        //
+        // Use TestCleanup to run code after each test has run
+        // [TestCleanup()]
+        // public void MyTestCleanup() { }
+        //
+
+        #endregion
 
         [TestMethod]
         [HostType("VS IDE")]
@@ -39,11 +71,20 @@ namespace Savant.Test.InteropTests
         {
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
-                DTE dte = (DTE)VsIdeTestHostContext.ServiceProvider.GetService(typeof(DTE));
-                dte.Solution.Open(@"");
+                string solutionName = "UnitTestSoloution";
+                string projectName = "UnitTestConsoleApplication";
 
-                var s = new VisualStudio.Interop.Solution(dte.Solution);
-                Assert.AreEqual(2, s.Projects.Count());
+                TestUtils testUtils = new TestUtils();
+                DTE dte = (DTE)VsIdeTestHostContext.ServiceProvider.GetService(typeof(DTE));
+                var solution = new VisualStudio.Interop.Solution(dte.Solution);
+
+                // create an empty solution
+                testUtils.CreateEmptySolution(TestContext.TestDir, solutionName);
+                Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
+
+                // add a console application to the solution
+                testUtils.CreateProjectFromTemplate(projectName, "Console Application", "CSharp", false);
+                Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
             });
         }
     }
