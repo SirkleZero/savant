@@ -21,7 +21,7 @@ namespace VisualStudio.Interop
             this.solution = solution;
         }
 
-        public string Path
+        public string FullName
         {
             get
             {
@@ -41,15 +41,16 @@ namespace VisualStudio.Interop
         {
             get
             {
-                return System.IO.Path.GetDirectoryName(this.Path);
+                return System.IO.Path.GetDirectoryName(this.FullName);
             }
         }
 
-        public IEnumerable<EnvDTE.Project> Projects
+        public IEnumerable<Project> Projects
         {
             get
             {
-                return this.solution.Projects.Cast<EnvDTE.Project>();
+                return from p in this.solution.Projects.Cast<EnvDTE.Project>()
+                       select new Project(p);
             }
         }
     }

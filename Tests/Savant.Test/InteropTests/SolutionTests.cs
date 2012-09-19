@@ -72,6 +72,7 @@ namespace Savant.Test.InteropTests
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
                 string solutionName = "UnitTestSoloution";
+                string solutionDirectory = Path.Combine(TestContext.TestDir, solutionName);
                 string projectName = "UnitTestConsoleApplication";
 
                 TestUtils testUtils = new TestUtils();
@@ -82,9 +83,18 @@ namespace Savant.Test.InteropTests
                 testUtils.CreateEmptySolution(TestContext.TestDir, solutionName);
                 Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
 
-                // add a console application to the solution
+                // add a console application to the solution and verify it
                 testUtils.CreateProjectFromTemplate(projectName, "Console Application", "CSharp", false);
                 Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
+
+                // test the solution name
+                Assert.AreEqual<string>(solutionName, solution.Name);
+
+                // test the solution file
+                Assert.IsTrue(File.Exists(solution.FullName));
+
+                // test the solution directory
+                Assert.IsTrue(Directory.Exists(solution.Directory));
             });
         }
     }
