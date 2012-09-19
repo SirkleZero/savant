@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualStudio.Interop", "Vis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTestLibrary", "IntegrationTestLibrary\IntegrationTestLibrary.csproj", "{648DA260-893B-485B-9E5A-5454E391FAC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{3C019D60-6FE7-44C5-870A-07C402FC670D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{648DA260-893B-485B-9E5A-5454E391FAC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{648DA260-893B-485B-9E5A-5454E391FAC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{648DA260-893B-485B-9E5A-5454E391FAC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C019D60-6FE7-44C5-870A-07C402FC670D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C019D60-6FE7-44C5-870A-07C402FC670D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C019D60-6FE7-44C5-870A-07C402FC670D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C019D60-6FE7-44C5-870A-07C402FC670D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

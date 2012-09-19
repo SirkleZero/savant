@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EnvDTE;
 
 namespace VisualStudio.Interop
 {
     public class Solution
     {
+        #region private constants
+
+        private const string SolutionNamePropertyName = "name";
+
+        #endregion
+
+        #region private fields
+
         private readonly EnvDTE.Solution solution;
+
+        #endregion
+
+        #region constructors
 
         public Solution(EnvDTE.Solution solution)
         {
@@ -20,6 +28,10 @@ namespace VisualStudio.Interop
             }
             this.solution = solution;
         }
+
+        #endregion
+
+        #region public properties
 
         public string FullName
         {
@@ -33,7 +45,7 @@ namespace VisualStudio.Interop
         {
             get
             {
-                return this.solution.Properties.Item("name").Value.ToString();
+                return this.solution.Properties.Item(Solution.SolutionNamePropertyName).Value.ToString();
             }
         }
 
@@ -49,9 +61,11 @@ namespace VisualStudio.Interop
         {
             get
             {
-                return from p in this.solution.Projects.Cast<EnvDTE.Project>()
-                       select new Project(p);
+                return from project in this.solution.Projects.Cast<EnvDTE.Project>()
+                       select new Project(project);
             }
         }
+
+        #endregion
     }
 }
