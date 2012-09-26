@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using VisualStudio.Interop.Ioc;
 
 namespace VisualStudio.Interop
 {
@@ -20,13 +21,26 @@ namespace VisualStudio.Interop
 
         #region constructors
 
+        public Solution() : this(ServiceLocator.GetInstance<EnvDTE.DTE>()) { }
+
         public Solution(EnvDTE.Solution solution)
         {
             if (solution == null)
             {
                 throw new ArgumentNullException("solution");
             }
+
             this.solution = solution;
+        }
+
+        public Solution(EnvDTE.DTE dte)
+        {
+            if (dte == null)
+            {
+                throw new ArgumentNullException("dte");
+            }
+
+            this.solution = dte.Solution;
         }
 
         #endregion
