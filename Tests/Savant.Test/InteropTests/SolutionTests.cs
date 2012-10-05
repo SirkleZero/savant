@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using EnvDTE;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VsSDK.IntegrationTestLibrary;
 using Microsoft.VSSDK.Tools.VsIdeTesting;
@@ -14,24 +11,27 @@ namespace Savant.Test.InteropTests
     [TestClass]
     public class SolutionTests
     {
+        #region
+
+        private const string SolutionName = "UnitTestSoloution";
+        private const string ConsoleApplicationProjectName = "UnitTestConsoleApplication";
+        private const string CSharpLanguageName = "CSharp";
+        private const string ConsoleProjectTemplateName = "Console Application";
+
+        #endregion
+
         #region fields
 
         private delegate void ThreadInvoker();
-        private TestContext _testContext;
 
         #endregion
 
         #region properties
 
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get { return _testContext; }
-            set { _testContext = value; }
-        }
+        /// Gets or sets the test context which provides information about and functionality for the current test run.
+        /// </summary>
+        public TestContext TestContext { get; set; }
 
         #endregion
 
@@ -67,34 +67,57 @@ namespace Savant.Test.InteropTests
 
         [TestMethod]
         [HostType("VS IDE")]
-        public void ValidateSolutionProxy()
+        public void CreateEmptySolution()
         {
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
-                string solutionName = "UnitTestSoloution";
-                string solutionDirectory = Path.Combine(TestContext.TestDir, solutionName);
-                string projectName = "UnitTestConsoleApplication";
-
                 TestUtils testUtils = new TestUtils();
                 DTE dte = (DTE)VsIdeTestHostContext.ServiceProvider.GetService(typeof(DTE));
+
+                // create the visual studio solution proxy object that we want to test.
                 var solution = new VisualStudio.Interop.Solution(dte.Solution);
 
                 // create an empty solution
-                testUtils.CreateEmptySolution(TestContext.TestDir, solutionName);
+                testUtils.CreateEmptySolution(TestContext.TestDir, SolutionTests.SolutionName);
                 Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
 
-                // add a console application to the solution and verify it
-                testUtils.CreateProjectFromTemplate(projectName, "Console Application", "CSharp", false);
-                Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
-
-                // test the solution name
-                Assert.AreEqual<string>(solutionName, solution.Name);
+                //test the solution name
+                Assert.AreEqual<string>(SolutionTests.SolutionName, solution.Name);
 
                 // test the solution file
                 Assert.IsTrue(File.Exists(solution.FullName));
 
                 // test the solution directory
                 Assert.IsTrue(Directory.Exists(solution.Directory));
+            });
+        }
+
+        [TestMethod]
+        [HostType("VS IDE")]
+        public void CreateEmptyConsoleApplication()
+        {
+            UIThreadInvoker.Invoke((ThreadInvoker)delegate()
+            {
+                TestUtils testUtils = new TestUtils();
+                DTE dte = (DTE)VsIdeTestHostContext.ServiceProvider.GetService(typeof(DTE));
+
+                // create the visual studio solution proxy object that we want to test.
+                var solution = new VisualStudio.Interop.Solution(dte.Solution);
+
+                // create an empty solution
+                testUtils.CreateEmptySolution(TestContext.TestDir, SolutionTests.SolutionName);
+                Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
+
+                // add a console application to the solution and verify it
+                testUtils.CreateProjectFromTemplate(SolutionTests.ConsoleApplicationProjectName, SolutionTests.ConsoleProjectTemplateName, SolutionTests.CSharpLanguageName, false);
+                Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
+
+                // test that the project was added successfully
+                Assert.IsTrue(solution.Projects.Any(p => p.Name.Equals(SolutionTests.ConsoleApplicationProjectName, StringComparison.OrdinalIgnoreCase)));
+
+                // test that the file is on disk
+                var filename = solution.Projects.First(p => p.Name.Equals(SolutionTests.ConsoleApplicationProjectName, StringComparison.OrdinalIgnoreCase)).FullName;
+                Assert.IsTrue(File.Exists(filename));
             });
         }
     }
