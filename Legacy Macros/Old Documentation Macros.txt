@@ -1,0 +1,374 @@
+Imports EnvDTE
+Imports EnvDTE80
+Imports System.Diagnostics
+Imports System
+Imports System.IO
+Imports System.Collections
+Imports System.Xml
+Imports System.Text
+Imports System.Text.RegularExpressions
+
+Public Module Documentation
+    Public Sub DocumentConstructor()
+        Dim caretPosition As TextPoint = DTE.ActiveDocument.Selection.ActivePoint
+        Dim element As CodeElement = Nothing
+        Try
+            element = caretPosition.CodeElement(vsCMElement.vsCMElementFunction)
+        Catch
+        End Try
+
+        Dim func As CodeFunction = element
+        If func Is Nothing _
+        OrElse func.FunctionKind <> vsCMFunction.vsCMFunctionConstructor Then
+            MsgBox("Constructor not found.")
+            Exit Sub
+        End If
+
+        Dim doc As XmlDocument = GetCommentXml(func)
+
+        Dim summaryTag As XmlElement = doc.SelectSingleNode("/doc/summary")
+        If summaryTag Is Nothing Then
+            ' Create <summary> tag
+            summaryTag = doc.CreateElement("summary")
+            doc.FirstChild.PrependChild(summaryTag)
+        ElseIf summaryTag.InnerXml <> String.Empty Then
+            ' Overwrite confirmation
+            If MsgBox("Do you wish to overwrite the contents of the summary tag?", _
+            MsgBoxStyle.YesNo) = MsgBoxResult.No Then
+                Exit Sub
+            End If
+        End If
+
+        Dim typeName As String = func.Parent.Name
+        Dim typeCategory As String = _
+        IIf(func.Parent.Kind = vsCMElement.vsCMElementStruct, _
+        "structure", "class")
+
+        Dim summary As String = String.Format( _
+        "<para>Initializes an instance of the <see cref=""{0}""/> {1}.</para>", _
+        typeName, typeCategory)
+
+        summaryTag.InnerXml = summary
+
+        EnsureBasicTags(func, doc)
+
+        SetCommentXml(func, doc)
+    End Sub
+
+    Public Sub DocumentExceptions()
+        Dim element As CodeElement = GetCurrentCodeElement(vsCMElement.vsCMElementFunction, vsCMElement.vsCMElementProperty)
+
+        If element Is Nothing Then
+            MsgBox("This macro is only applicable to methods and properties.")
+            Exit Sub
+        End If
+
+        Dim doc As XmlDocument = GetCommentXml(element)
+
+        EnsureBasicTags(element, doc)
+
+        ' Do stuff...
+        Dim editPoint As EditPoint = element.StartPoint.CreateEditPoint()
+        Dim sourceCode As String = editPoint.GetText(element.EndPoint)
+
+        Dim rxList As ArrayList = New ArrayList
+
+        ' Language-neutral Regex
+        rxList.Add("(?i:\bthrow\s+new\s+(?<exception>Argument(Null|OutOfRange)Exception)\s*\(\s*""(?<param>\w+)"")")
+        rxList.Add("(?i:\bthrow\s+new\s+(?<exception>ArgumentException)\s*\(\s*""\w*"",\s*""(?<param>\w+)"")")
+        rxList.Add("(?i:\bthrow\s+new\s+(?<exception>NullOrEmptyStringException)\(""(?<param>\w+)"")")
+        rxList.Add("(?i:\bthrow\s+new\s+(?<exception>[\w\.]*Exception\b))")
+
+        ' Language-specific Regex
+        If element.Language = CodeModelLanguageConstants.vsCMLanguageVB Then
+            rxList.Add("(?si:(?<indent>\n\s*)Catch\s+\w+\s+As\s+(?<exception>[\w\.]+).*?\bthrow\s*(\s+\w+)?(?=\s*\n.*?)\k<indent>End\s+Try)")
+        Else
+            rxList.Add("(?s:(?<indent>\n\s*)catch\s*\(\s*(?<exception>[\w\.]+)\b.*?\).*?\bthrow\s*(\s+\w+)?;.*?\k<indent>\})")
+        End If
+
+
+        ' Capture exceptions
+        For Each rx As String In rxList
+            Dim matches As MatchCollection = Regex.Matches(sourceCode, rx)
+
+            For Each mtch As Match In matches
+                Dim exceptionName As String = mtch.Groups("exception").Value
+                Dim xpath As String = String.Format("/doc/exception[@cref=""{0}""]", exceptionName)
+                Dim exceptionTag As XmlElement = doc.SelectSingleNode(xpath)
+
+                If exceptionTag Is Nothing Then
+                    ' Tag not found; create one
+                    exceptionTag = doc.CreateElement("exception")
+                    exceptionTag.SetAttribute("cref", exceptionName)
+
+                    ' Prevent an empty tag from closing on itself during rendering.
+                    exceptionTag.AppendChild(doc.CreateTextNode(""))
+
+                    doc.FirstChild.AppendChild(exceptionTag)
+                End If
+
+                If mtch.Groups("param").Value <> String.Empty Then
+                    ' Argument exception found; write comments
+                    Dim param As String = mtch.Groups("param").Value
+                    Dim paramXpath As String = String.Format(".//paramref[@name=""{0}""]", param)
+
+                    If Not exceptionTag.SelectSingleNode(paramXpath) Is Nothing Then
+                        ' Parameter already covered; next...
+                        GoTo MatchEnd
+                    End If
+
+                    Dim statement As String
+
+                    Select Case exceptionName
+                        Case "ArgumentNullException"
+                            statement = String.Format("<para>The argument <paramref " _
+                        + "name=""{0}""/> is <langword name=""null""/>.</para>", _
+                        param)
+                        Case "ArgumentOutOfRangeException"
+                            statement = String.Format("<para>The argument <paramref " _
+                        + "name=""{0}""/> is out of range.</para>", _
+                        param)
+                        Case "NullOrEmptyStringException"
+                            statement = String.Format("<para>The argument <paramref " _
+                        + "name=""{0}""/> is <langword name=""null""/> or has a zero length.</para>", _
+                        param)
+                        Case Else ' ArgumentException
+                            statement = String.Format("<para>The argument <paramref " _
+                        + "name=""{0}""/> is invalid.</para>", _
+                        param)
+                    End Select
+
+                    If exceptionTag.InnerXml <> String.Empty Then
+                        ' Create delimiter
+                        exceptionTag.InnerXml = exceptionTag.InnerXml _
+                    + "<para>-or-</para>"
+                    End If
+
+                    exceptionTag.InnerXml = exceptionTag.InnerXml + statement
+                End If
+MatchEnd:   Next
+        Next
+
+        ' Emit XML comment block
+        SetCommentXml(element, doc)
+    End Sub
+
+    Public Sub InheritDocumentation()
+        Dim element As CodeElement = GetCurrentCodeElement( _
+            vsCMElement.vsCMElementFunction, _
+            vsCMElement.vsCMElementProperty)
+
+        If element Is Nothing Then
+            MsgBox("This macro is only applicable to methods and properties.")
+            Exit Sub
+        End If
+
+        If element.Access = vsCMAccess.vsCMAccessPrivate OrElse IsMemberStatic(element) Then
+            MsgBox("Not applicable to static or private members.")
+            Exit Sub
+        End If
+
+        If GetCommentXml(element).FirstChild.ChildNodes.Count > 0 Then
+            If MsgBox("Are you sure you want to overwrite the current documentation " _
+            + "with inherited documentation?", MsgBoxStyle.YesNo) = MsgBoxResult.No Then
+                Exit Sub
+            End If
+        End If
+
+        Dim baseMember As CodeElement = FindBaseMember(element, element.Parent)
+
+        If baseMember Is Nothing Then
+            MsgBox("Base member not found.  No documentation can be copied.")
+            Exit Sub
+        End If
+
+        Dim doc As XmlDocument = GetCommentXml(baseMember)
+
+        If doc.FirstChild.ChildNodes.Count = 0 Then
+            MsgBox("Base documentation not found.")
+            Exit Sub
+        End If
+
+        SetCommentXml(element, doc)
+    End Sub
+
+    Private Function FindBaseMember(ByVal descendentMember As CodeElement, ByVal typeElement As CodeElement) As CodeElement
+        If descendentMember.Parent.FullName <> typeElement.FullName Then
+            For Each member As CodeElement In typeElement.Members
+                If IsMemberStatic(member) = False _
+                AndAlso member.Name = descendentMember.Name _
+                AndAlso member.Kind = descendentMember.Kind _
+                AndAlso member.Type.AsString = descendentMember.Type.AsString Then
+                    If member.Kind = vsCMElement.vsCMElementFunction Then
+                        ' Compare method parameters
+                        If member.Parameters.Count <> descendentMember.Parameters.Count Then
+                            GoTo MemberEnd
+                        End If
+                        For i As Integer = 1 To member.Parameters.Count
+                            Dim paramX As CodeParameter = member.Parameters.Item(i)
+                            Dim paramY As CodeParameter = descendentMember.Parameters.Item(i)
+                            If paramX.Type.AsString <> paramY.Type.AsString Then
+                                ' Different overloads: skip
+                                GoTo MemberEnd
+                            End If
+                        Next
+                    End If
+                    ' Matching base member found
+                    Return member
+                End If
+MemberEnd:  Next
+        End If
+
+        ' Matching base member not found, keep looking
+        Dim baseTypeList As ArrayList = New ArrayList
+        For Each baseType As CodeElement In typeElement.Bases
+            baseTypeList.Add(baseType)
+        Next
+        If Not TypeOf (typeElement) Is CodeInterface Then
+            For Each baseInterface As CodeElement In typeElement.ImplementedInterfaces
+                baseTypeList.Add(baseInterface)
+            Next
+        End If
+
+        For Each baseType As CodeElement In baseTypeList
+            Dim baseMember As CodeElement = FindBaseMember(descendentMember, baseType)
+            If Not baseMember Is Nothing Then
+                Return baseMember
+            End If
+        Next
+
+        ' Nothing found
+        Return Nothing
+    End Function
+
+    Private Function IsMemberStatic(ByVal member As CodeElement) As Boolean
+        If member.Kind = vsCMElement.vsCMElementFunction Then
+            Return member.IsShared
+        ElseIf member.Kind = vsCMElement.vsCMElementProperty _
+        AndAlso member.Parent.Kind <> vsCMElement.vsCMElementInterface Then
+            Try
+                If Not member.Getter Is Nothing Then
+                    Return member.Getter.IsShared
+                ElseIf Not member.Setter Is Nothing Then
+                    Return member.Setter.IsShared
+                End If
+            Catch
+                ' Works around Visual Studio 2003's problem of accessing
+                ' IsShared on an accessor CodeFunction from a remote 
+                ' assembly
+            End Try
+        End If
+
+        Return False
+    End Function
+
+    Private Function GetCommentXml(ByVal element As CodeElement) As XmlDocument
+        Dim doc As XmlDocument = New XmlDocument
+
+        Dim xmlStr As String = element.DocComment
+        If Not xmlStr Is Nothing AndAlso xmlStr.Trim() <> String.Empty Then
+            If xmlStr.StartsWith("<doc>") = False Then
+                ' Ensure single root node
+                xmlStr = "<doc>" & xmlStr + "</doc>"
+            End If
+
+            ' Correct nested <doc> in Visual Studio 2005 Beta 2
+            xmlStr = Regex.Replace(xmlStr, "^(\s*<doc>\s*){2,}", "<doc>")
+            xmlStr = Regex.Replace(xmlStr, "(\s*<\/doc>\s*){2,}$", "</doc>")
+
+            doc.LoadXml(xmlStr)
+        Else
+            Dim rootTag = doc.CreateElement("doc")
+            doc.AppendChild(rootTag)
+        End If
+
+        Return doc
+    End Function
+
+    Private Function SetCommentXml(ByVal element As CodeElement, _
+    ByVal doc As XmlDocument)
+        Dim sb As StringBuilder = New StringBuilder
+        Dim sw As StringWriter = New StringWriter(sb)
+        Dim xw As XmlTextWriter = New XmlTextWriter(sw)
+
+        Try
+            xw.Indentation = 1
+            xw.IndentChar = Char.Parse(vbTab)
+            xw.Formatting = Formatting.Indented
+
+            Dim rootNode As XmlNode
+            If element.Language = CodeModelLanguageConstants.vsCMLanguageVB Then
+                rootNode = doc.FirstChild
+            Else ' CSharp
+                rootNode = doc
+            End If
+
+            rootNode.WriteContentTo(xw)
+            element.DocComment = sb.ToString()
+        Finally
+            xw.Close()
+            sw.Close()
+        End Try
+    End Function
+
+    Private Sub EnsureBasicTags(ByVal element As CodeElement, _
+    ByVal doc As XmlDocument)
+        ' <summary>
+        If doc.SelectSingleNode("/doc/summary") Is Nothing Then
+            Dim summaryTag As XmlElement = doc.CreateElement("summary")
+            summaryTag.AppendChild(doc.CreateTextNode(""))
+            doc.FirstChild.PrependChild(summaryTag)
+        End If
+
+        ' <param>
+        If element.Kind = vsCMElement.vsCMElementFunction Then
+            For Each param As CodeParameter In element.Parameters
+                Dim xpath As String = _
+             String.Format("/doc/param[@name='{0}']", param.Name)
+                If doc.SelectSingleNode(xpath) Is Nothing Then
+                    Dim paramTag As XmlElement = doc.CreateElement("param")
+                    paramTag.SetAttribute("name", param.Name)
+                    paramTag.AppendChild(doc.CreateTextNode(""))
+                    doc.FirstChild.AppendChild(paramTag)
+                End If
+            Next
+        End If
+
+        ' <returns>
+        If element.Kind = vsCMElement.vsCMElementFunction _
+        AndAlso element.Type.TypeKind <> vsCMTypeRef.vsCMTypeRefVoid _
+       AndAlso doc.SelectSingleNode("/doc/returns") Is Nothing Then
+            Dim returnsTag As XmlElement = doc.CreateElement("returns")
+            returnsTag.AppendChild(doc.CreateTextNode(""))
+            doc.FirstChild.PrependChild(returnsTag)
+        End If
+
+        ' <value>
+        If element.Kind = vsCMElement.vsCMElementProperty _
+       AndAlso doc.SelectSingleNode("/doc/value") Is Nothing Then
+            Dim valueTag As XmlElement = doc.CreateElement("value")
+            valueTag.AppendChild(doc.CreateTextNode(""))
+            doc.FirstChild.AppendChild(valueTag)
+        End If
+    End Sub
+
+    Private Function GetCurrentCodeElement(ByVal ParamArray kinds() _
+    As vsCMElement) As CodeElement
+        Dim caretPosition = DTE.ActiveDocument.Selection.ActivePoint
+
+        For Each kind As vsCMElement In kinds
+            Dim element As CodeElement = Nothing
+            Try
+                element = caretPosition.CodeElement(kind)
+            Catch
+            End Try
+
+            If Not element Is Nothing Then
+                Return element
+            End If
+        Next
+
+        Return Nothing ' No matching element found.
+    End Function
+
+End Module

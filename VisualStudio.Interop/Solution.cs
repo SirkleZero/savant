@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using EnvDTE;
 using VisualStudio.Interop.Ioc;
+using DteProject = EnvDTE.Project;
+using DteSolution = EnvDTE.Solution;
 
 namespace VisualStudio.Interop
 {
+    /// <summary>
+    /// Provides a proxy to simplify working with <see cref="EnvDTE.Solution"/> objects.
+    /// </summary>
     public class Solution
     {
         #region private constants
@@ -23,7 +30,7 @@ namespace VisualStudio.Interop
 
         public Solution() : this(ServiceLocator.GetInstance<EnvDTE.DTE>()) { }
 
-        public Solution(EnvDTE.Solution solution)
+        public Solution(DteSolution solution)
         {
             if (solution == null)
             {
@@ -33,7 +40,7 @@ namespace VisualStudio.Interop
             this.solution = solution;
         }
 
-        public Solution(EnvDTE.DTE dte)
+        public Solution(DTE dte)
         {
             if (dte == null)
             {
@@ -67,7 +74,7 @@ namespace VisualStudio.Interop
         {
             get
             {
-                return System.IO.Path.GetDirectoryName(this.FullName);
+                return Path.GetDirectoryName(this.FullName);
             }
         }
 
@@ -75,7 +82,7 @@ namespace VisualStudio.Interop
         {
             get
             {
-                return from project in this.solution.Projects.Cast<EnvDTE.Project>()
+                return from project in this.solution.Projects.Cast<DteProject>()
                        select new Project(project);
             }
         }
