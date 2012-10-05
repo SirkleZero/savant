@@ -28,7 +28,7 @@ namespace VisualStudio.Interop
 
         #region constructors
 
-        public Solution() : this(ServiceLocator.GetInstance<EnvDTE.DTE>()) { }
+        public Solution() : this(ServiceLocator.GetInstance<DTE>()) { }
 
         public Solution(DteSolution solution)
         {
