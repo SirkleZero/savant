@@ -67,7 +67,7 @@ namespace Savant.Test.InteropTests
 
         [TestMethod]
         [HostType("VS IDE")]
-        public void CreateEmptySolution()
+        public void CreateEmptySolutionViaDTE()
         {
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
@@ -94,15 +94,40 @@ namespace Savant.Test.InteropTests
 
         [TestMethod]
         [HostType("VS IDE")]
+        public void CreateEmptySolutionViaServiceLocator()
+        {
+            UIThreadInvoker.Invoke((ThreadInvoker)delegate()
+            {
+                var testUtils = new TestUtils();
+
+                // create the visual studio solution proxy object that we want to test.
+                var solution = new VisualStudio.Interop.Solution();
+
+                // create an empty solution
+                testUtils.CreateEmptySolution(TestContext.TestDir, SolutionTests.SolutionName);
+                Assert.AreEqual<int>(solution.Projects.Count(), testUtils.ProjectCount());
+
+                //test the solution name
+                Assert.AreEqual<string>(SolutionTests.SolutionName, solution.Name);
+
+                // test the solution file
+                Assert.IsTrue(File.Exists(solution.FullName));
+
+                // test the solution directory
+                Assert.IsTrue(Directory.Exists(solution.Directory));
+            });
+        }
+
+        [TestMethod]
+        [HostType("VS IDE")]
         public void CreateEmptyConsoleApplication()
         {
             UIThreadInvoker.Invoke((ThreadInvoker)delegate()
             {
-                TestUtils testUtils = new TestUtils();
-                DTE dte = (DTE)VsIdeTestHostContext.ServiceProvider.GetService(typeof(DTE));
+                var testUtils = new TestUtils();
 
-                // create the visual studio solution proxy object that we want to test.
-                var solution = new VisualStudio.Interop.Solution(dte.Solution);
+                // create the visual studio solution proxy object that we want to test (service locator version)
+                var solution = new VisualStudio.Interop.Solution();
 
                 // create an empty solution
                 testUtils.CreateEmptySolution(TestContext.TestDir, SolutionTests.SolutionName);
